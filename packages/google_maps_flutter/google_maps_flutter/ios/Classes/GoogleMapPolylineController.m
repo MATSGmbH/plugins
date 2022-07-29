@@ -59,6 +59,10 @@
   self.polyline.geodesic = isGeodesic;
 }
 
+- (void)setSpans:(NSArray<GMSStyleSpan *> *) spans {
+  self.polyline.spans = spans;
+}
+
 - (void)interpretPolylineOptions:(NSDictionary *)data
                        registrar:(NSObject<FlutterPluginRegistrar> *)registrar {
   NSNumber *consumeTapEvents = data[@"consumeTapEvents"];
@@ -95,6 +99,65 @@
   if (geodesic && geodesic != (id)[NSNull null]) {
     [self setGeodesic:geodesic.boolValue];
   }
+    
+    NSArray *gradientValues = data[@"gradientValues"];
+    NSArray *gradientColors = data[@"gradientColors"];
+    if (gradientValues && gradientValues != (id)[NSNull null] && gradientColors && gradientColors != (id)[NSNull null]) {
+        
+        NSMutableArray<UIColor*>* colors = [NSMutableArray array];
+        for (NSNumber* colorNumber in gradientColors) {
+            [colors addObject:[FLTGoogleMapJSONConversions colorFromRGBA:colorNumber]];
+        }
+        
+        NSMutableArray<UIColor*>* colorValues = [NSMutableArray array];
+        CGFloat count = [colors count];
+        for (NSNumber* gradientValue in gradientValues) {
+            CGFloat approxIndex = MIN(MAX(gradientValue.floatValue, 0.0), 1.0) / (1.0 / (count - 1.0));
+            
+            NSUInteger firstIndex = floor(approxIndex);
+            NSUInteger secondIndex = ceil(approxIndex);
+            NSUInteger fallbackIndex = round(approxIndex);
+
+            UIColor* firstColor = [colors objectAtIndex:firstIndex];
+            UIColor* secondColor = [colors objectAtIndex:secondIndex];
+            UIColor* fallbackColor = [colors objectAtIndex:fallbackIndex];
+
+            CGFloat intermediatePercentage = approxIndex - firstIndex;
+            
+            CGFloat r1, g1, b1, a1;
+            CGFloat r2, g2, b2, a2;
+            
+            if ([firstColor getRed:&r1 green:&g1 blue:&b1 alpha:&a1] == FALSE)
+            {
+                [colorValues addObject:fallbackColor];
+                continue;
+            }
+            if ([secondColor getRed:&r2 green:&g2 blue:&b2 alpha:&a2] == FALSE)
+            {
+                [colorValues addObject:fallbackColor];
+                continue;
+            }
+            
+            UIColor* finalColor = [UIColor colorWithRed:r1 + (r2 - r1) * intermediatePercentage
+                                                  green:g1 + (g2 - g1) * intermediatePercentage
+                                                   blue:b1 + (b2 - b1) * intermediatePercentage
+                                                  alpha:a1 + (a2 - a1) * intermediatePercentage];
+            [colorValues addObject:finalColor];
+        }
+        
+        if ([colorValues count] == self.polyline.path.count && self.polyline.path.count > 0)
+        {
+            NSMutableArray<GMSStyleSpan*>* spans = [NSMutableArray array];
+            UIColor* lastColor = [colorValues objectAtIndex:0];
+            for (int i = 1; i < self.polyline.path.count; i++) {
+                UIColor* currentColor = [colorValues objectAtIndex:i];
+                GMSStrokeStyle *fullGradient = [GMSStrokeStyle gradientFromColor:lastColor toColor:currentColor];
+                [spans addObject:[GMSStyleSpan spanWithStyle:fullGradient]];
+            }
+            if ([spans count] > 0)
+                [self setSpans:spans];
+        }
+    }
 }
 
 @end

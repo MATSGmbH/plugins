@@ -33,4 +33,6 @@ interface PolylineOptionsSink {
   void setWidth(float width);
 
   void setZIndex(float zIndex);
+
+//   void setSpans(List<StyleSpan> spans);
 }

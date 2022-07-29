@@ -5,6 +5,7 @@
 package io.flutter.plugins.googlemaps;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import com.google.android.gms.maps.CameraUpdate;
@@ -541,6 +542,53 @@ class Convert {
     final Object pattern = data.get("pattern");
     if (pattern != null) {
       sink.setPattern(toPattern(pattern));
+    }
+    final Object gradientColors = data.get("gradientColors");
+    final Object gradientValues = data.get("gradientValues");
+    if (gradientColors != null && gradientValues != null) {
+      Log.d("MAP","gradientColors " + gradientColors.toString());
+      List<Integer> colors = new ArrayList<>();
+
+      for (Object obj : (ArrayList)gradientColors) {
+        colors.add(toInt(obj));
+      }
+
+      int count = colors.size();
+      List<Integer> gradientColorsList = new ArrayList<>();
+      for (Object obj : (ArrayList)gradientValues) {
+        float gradientValue = toFloat(obj);
+
+        float approxIndex = (float) (Math.min(Math.max(gradientValue, 0.0), 1.0) / (1.0 / (count - 1.0)));
+        int firstIndex = (int)Math.floor(approxIndex);
+        int secondIndex = (int)Math.ceil(approxIndex);
+
+        Integer firstColor = colors.get(firstIndex);
+        Integer secondColor = colors.get(secondIndex);
+
+        float intermediatePercentage = approxIndex - firstIndex;
+
+        int A1 = (firstColor >> 24) & 0xff; // or color >>> 24
+        int R1 = (firstColor >> 16) & 0xff;
+        int G1 = (firstColor >>  8) & 0xff;
+        int B1 = (firstColor      ) & 0xff;
+
+        int A2 = (secondColor >> 24) & 0xff; // or color >>> 24
+        int R2 = (secondColor >> 16) & 0xff;
+        int G2 = (secondColor >>  8) & 0xff;
+        int B2 = (secondColor      ) & 0xff;
+
+        int A = A1 + (int)((A2 - A1) * intermediatePercentage);
+        int R = R1 + (int)((R2 - R1) * intermediatePercentage);
+        int G = G1 + (int)((G2 - G1) * intermediatePercentage);
+        int B = B1 + (int)((B2 - B1) * intermediatePercentage);
+
+        int finalColor = (A & 0xff) << 24 | (R & 0xff) << 16 | (G & 0xff) << 8 | (B & 0xff);
+        Log.d("MAP","gradientColors finalColor " +finalColor);
+        gradientColorsList.add(finalColor);
+      }
+
+      Log.d("MAP","gradientColors colors " + gradientColorsList.toString());
+      // sink.setPattern(toPattern(pattern));
     }
     final String polylineId = (String) data.get("polylineId");
     if (polylineId == null) {

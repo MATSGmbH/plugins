@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:math';
+
 import 'package:flutter/foundation.dart'
     show immutable, objectRuntimeType, visibleForTesting;
 
@@ -71,6 +73,44 @@ class LatLng {
 ///   if `northeast.longitude` < `southwest.longitude`
 @immutable
 class LatLngBounds {
+  factory LatLngBounds.fromPoints(List<LatLng> points) {
+    if (points.isNotEmpty) {
+      num? minX;
+      num? maxX;
+      num? minY;
+      num? maxY;
+
+      for (final point in points) {
+        final num x = degToRadian(point.longitude);
+        final num y = degToRadian(point.latitude);
+
+        if (minX == null || minX > x) {
+          minX = x;
+        }
+
+        if (minY == null || minY > y) {
+          minY = y;
+        }
+
+        if (maxX == null || maxX < x) {
+          maxX = x;
+        }
+
+        if (maxY == null || maxY < y) {
+          maxY = y;
+        }
+      }
+
+      final _sw =
+          LatLng(radianToDeg(minY as double), radianToDeg(minX as double));
+      final _ne =
+          LatLng(radianToDeg(maxY as double), radianToDeg(maxX as double));
+      return LatLngBounds(southwest: _sw, northeast: _ne);
+    } else {
+      throw Exception();
+    }
+  }
+
   /// Creates geographical bounding box with the specified corners.
   ///
   /// The latitude of the southwest corner cannot be larger than the
@@ -138,3 +178,7 @@ class LatLngBounds {
   @override
   int get hashCode => Object.hash(southwest, northeast);
 }
+
+double degToRadian(final double deg) => deg * (pi / 180.0);
+
+double radianToDeg(final double rad) => rad * (180.0 / pi);
