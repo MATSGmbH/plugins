@@ -153,6 +153,7 @@
                 UIColor* currentColor = [colorValues objectAtIndex:i];
                 GMSStrokeStyle *fullGradient = [GMSStrokeStyle gradientFromColor:lastColor toColor:currentColor];
                 [spans addObject:[GMSStyleSpan spanWithStyle:fullGradient]];
+                lastColor = currentColor;
             }
             if ([spans count] > 0)
                 [self setSpans:spans];

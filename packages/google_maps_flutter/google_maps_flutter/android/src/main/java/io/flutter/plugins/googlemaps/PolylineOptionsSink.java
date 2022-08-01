@@ -4,9 +4,12 @@
 
 package io.flutter.plugins.googlemaps;
 
+
+
 import com.google.android.gms.maps.model.Cap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PatternItem;
+
 import java.util.List;
 
 /** Receiver of Polyline configuration options. */
@@ -34,5 +37,5 @@ interface PolylineOptionsSink {
 
   void setZIndex(float zIndex);
 
-//   void setSpans(List<StyleSpan> spans);
+   void setGradientColors(List<Integer> gradientColors);
 }

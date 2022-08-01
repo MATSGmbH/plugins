@@ -546,7 +546,6 @@ class Convert {
     final Object gradientColors = data.get("gradientColors");
     final Object gradientValues = data.get("gradientValues");
     if (gradientColors != null && gradientValues != null) {
-      Log.d("MAP","gradientColors " + gradientColors.toString());
       List<Integer> colors = new ArrayList<>();
 
       for (Object obj : (ArrayList)gradientColors) {
@@ -583,12 +582,9 @@ class Convert {
         int B = B1 + (int)((B2 - B1) * intermediatePercentage);
 
         int finalColor = (A & 0xff) << 24 | (R & 0xff) << 16 | (G & 0xff) << 8 | (B & 0xff);
-        Log.d("MAP","gradientColors finalColor " +finalColor);
         gradientColorsList.add(finalColor);
       }
-
-      Log.d("MAP","gradientColors colors " + gradientColorsList.toString());
-      // sink.setPattern(toPattern(pattern));
+      sink.setGradientColors(gradientColorsList);
     }
     final String polylineId = (String) data.get("polylineId");
     if (polylineId == null) {

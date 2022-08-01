@@ -4,10 +4,17 @@
 
 package io.flutter.plugins.googlemaps;
 
+import android.graphics.Color;
+import android.util.Log;
+
 import com.google.android.gms.maps.model.Cap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PatternItem;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.maps.model.StrokeStyle;
+import com.google.android.gms.maps.model.StyleSpan;
+
+import java.util.ArrayList;
 import java.util.List;
 
 class PolylineBuilder implements PolylineOptionsSink {
@@ -82,5 +89,20 @@ class PolylineBuilder implements PolylineOptionsSink {
   @Override
   public void setZIndex(float zIndex) {
     polylineOptions.zIndex(zIndex);
+  }
+
+  @Override
+  public void setGradientColors(List<Integer> gradientColors) {
+    if (gradientColors.size() == polylineOptions.getPoints().size() && polylineOptions.getPoints().size() > 0) {
+      List<StyleSpan> spanStyles = new ArrayList<>();
+      int lastColor = gradientColors.get(0);
+      for (int i = 1; i < polylineOptions.getPoints().size(); i++) {
+        int currentColor = gradientColors.get(i);
+        StrokeStyle fullGradient = StrokeStyle.gradientBuilder(currentColor, lastColor).build();
+        spanStyles.add(new StyleSpan(fullGradient));
+        lastColor = currentColor;
+      }
+      polylineOptions.addAllSpans(spanStyles);
+    }
   }
 }

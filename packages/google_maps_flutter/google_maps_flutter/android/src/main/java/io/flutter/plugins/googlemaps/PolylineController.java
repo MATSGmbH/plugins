@@ -4,10 +4,16 @@
 
 package io.flutter.plugins.googlemaps;
 
+import android.util.Log;
+
 import com.google.android.gms.maps.model.Cap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PatternItem;
 import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.StrokeStyle;
+import com.google.android.gms.maps.model.StyleSpan;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /** Controller of a single Polyline on the map. */
@@ -90,5 +96,20 @@ class PolylineController implements PolylineOptionsSink {
 
   boolean consumeTapEvents() {
     return consumeTapEvents;
+  }
+
+  @Override
+  public void setGradientColors(List<Integer> gradientColors) {
+    if (gradientColors.size() == polyline.getPoints().size() && polyline.getPoints().size() > 0) {
+      List<StyleSpan> spanStyles = new ArrayList<>();
+      int lastColor = gradientColors.get(0);
+      for (int i = 1; i < polyline.getPoints().size(); i++) {
+        int currentColor = gradientColors.get(i);
+        StrokeStyle fullGradient = StrokeStyle.gradientBuilder(lastColor, currentColor).build();
+        spanStyles.add(new StyleSpan(fullGradient));
+        lastColor = currentColor;
+      }
+      polyline.setSpans(spanStyles);
+    }
   }
 }
