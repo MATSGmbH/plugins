@@ -126,6 +126,9 @@ class LatLngBounds {
   /// The northeast corner of the rectangle.
   final LatLng northeast;
 
+  LatLng get center => LatLng((northeast.latitude + southwest.latitude) / 2,
+      (northeast.longitude + southwest.longitude) / 2);
+
   /// Converts this object to something serializable in JSON.
   Object toJson() {
     return <Object>[southwest.toJson(), northeast.toJson()];
