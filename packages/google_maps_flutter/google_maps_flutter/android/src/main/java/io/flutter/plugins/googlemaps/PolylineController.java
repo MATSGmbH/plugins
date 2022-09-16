@@ -100,10 +100,11 @@ class PolylineController implements PolylineOptionsSink {
 
   @Override
   public void setGradientColors(List<Integer> gradientColors) {
-    if (gradientColors.size() == polyline.getPoints().size() && polyline.getPoints().size() > 0) {
+    int pointCount = polyline.getPoints().size();
+    if (gradientColors.size() == pointCount && pointCount > 0) {
       List<StyleSpan> spanStyles = new ArrayList<>();
       int lastColor = gradientColors.get(0);
-      for (int i = 1; i < polyline.getPoints().size(); i++) {
+      for (int i = 1; i < pointCount; i++) {
         int currentColor = gradientColors.get(i);
         StrokeStyle fullGradient = StrokeStyle.gradientBuilder(lastColor, currentColor).build();
         spanStyles.add(new StyleSpan(fullGradient));
