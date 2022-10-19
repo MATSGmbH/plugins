@@ -190,7 +190,7 @@ class Polyline implements MapsObject<Polyline> {
     addIfPresent('zIndex', zIndex);
     addIfPresent('gradientValues', values);
     addIfPresent(
-        'gradientColors', gradientColors?.map((e) => e.value).toList());
+        'gradientColors', gradientColors?.map((Color e) => e.value).toList());
 
     if (points != null) {
       json['points'] = _pointsToJson();

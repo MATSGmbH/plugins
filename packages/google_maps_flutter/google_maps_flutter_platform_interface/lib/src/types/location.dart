@@ -73,6 +73,15 @@ class LatLng {
 ///   if `northeast.longitude` < `southwest.longitude`
 @immutable
 class LatLngBounds {
+  /// Creates geographical bounding box with the specified corners.
+  ///
+  /// The latitude of the southwest corner cannot be larger than the
+  /// latitude of the northeast corner.
+  LatLngBounds({required this.southwest, required this.northeast})
+      : assert(southwest != null),
+        assert(northeast != null),
+        assert(southwest.latitude <= northeast.latitude);
+
   factory LatLngBounds.fromPoints(List<LatLng> points) {
     if (points.isNotEmpty) {
       num? minX;
@@ -80,7 +89,7 @@ class LatLngBounds {
       num? minY;
       num? maxY;
 
-      for (final point in points) {
+      for (final LatLng point in points) {
         final num x = degToRadian(point.longitude);
         final num y = degToRadian(point.latitude);
 
@@ -101,24 +110,15 @@ class LatLngBounds {
         }
       }
 
-      final _sw =
-          LatLng(radianToDeg(minY as double), radianToDeg(minX as double));
-      final _ne =
-          LatLng(radianToDeg(maxY as double), radianToDeg(maxX as double));
+      final LatLng _sw =
+          LatLng(radianToDeg(minY! as double), radianToDeg(minX! as double));
+      final LatLng _ne =
+          LatLng(radianToDeg(maxY! as double), radianToDeg(maxX! as double));
       return LatLngBounds(southwest: _sw, northeast: _ne);
     } else {
       throw Exception();
     }
   }
-
-  /// Creates geographical bounding box with the specified corners.
-  ///
-  /// The latitude of the southwest corner cannot be larger than the
-  /// latitude of the northeast corner.
-  LatLngBounds({required this.southwest, required this.northeast})
-      : assert(southwest != null),
-        assert(northeast != null),
-        assert(southwest.latitude <= northeast.latitude);
 
   /// The southwest corner of the rectangle.
   final LatLng southwest;
